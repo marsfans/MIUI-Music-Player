@@ -5,15 +5,15 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import kg.erjan.musicplayer.utils.EventUnsubscribeFn
-import kg.erjan.musicplayer.utils.Eventer
+import kg.erjan.musicplayer.utils.MusicObserverUnsubscribeFn
+import kg.erjan.musicplayer.utils.MusicObserver
 
 @Composable
-fun <T> EventerEffect(eventer: Eventer<T>, onEvent: (T) -> Unit) {
-    var unsubscribe: EventUnsubscribeFn? = remember { null }
+fun <T> EventerEffect(musicObserver: MusicObserver<T>, onEvent: (T) -> Unit) {
+    var unsubscribe: MusicObserverUnsubscribeFn? = remember { null }
 
     LaunchedEffect(LocalLifecycleOwner.current) {
-        unsubscribe = eventer.subscribe {
+        unsubscribe = musicObserver.subscribe {
             onEvent(it)
         }
     }

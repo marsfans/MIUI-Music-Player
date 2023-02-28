@@ -20,11 +20,11 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
-import kg.erjan.musicplayer.services.music.PlaybackState
 import kg.erjan.musicplayer.R
-import kg.erjan.musicplayer.presentation.ui.theme.*
 import kg.erjan.musicplayer.presentation.ui.helpers.Auxiliary
 import kg.erjan.musicplayer.presentation.ui.helpers.DurationConvertor
+import kg.erjan.musicplayer.presentation.ui.theme.*
+import kg.erjan.musicplayer.services.music.PlaybackState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
@@ -197,7 +197,6 @@ private fun ImageMusic() {
 @Composable
 private fun MusicSlider(auxiliary: Auxiliary) {
     var sliderPosition by remember { mutableStateOf<Int?>(null) }
-    /*TODO dont use class from data,after working changed PlaybackState.zero*/
     val duration by remember {
         mutableStateOf(
             auxiliary.musicPlayerRemote.currentPlaybackState ?: PlaybackState.zero
