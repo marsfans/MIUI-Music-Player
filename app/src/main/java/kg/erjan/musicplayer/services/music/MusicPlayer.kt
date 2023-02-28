@@ -3,10 +3,17 @@ package kg.erjan.musicplayer.services.music
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
+import kg.erjan.musicplayer.utils.MusicObserver
 
+enum class MusicState {
+    StartPlaying,
+    StopPlaying,
+    SongStaged
+}
 class MusicPlayer(private val context: Context) {
 
-    private var mIsInitialized = false
+    var isInitialized = false
+    val onUpdate = MusicObserver<MusicState>()
 
     val currentPlaybackState: PlaybackState?
         get() = mediaPlayer?.let {
@@ -18,10 +25,10 @@ class MusicPlayer(private val context: Context) {
 
     private val unsafeMediaPlayer: MediaPlayer = MediaPlayer().apply {
         setOnPreparedListener {
-            mIsInitialized = true
+            isInitialized = true
         }
         setOnCompletionListener {
-            mIsInitialized = false
+            isInitialized = false
         }
         setOnErrorListener { _, _, _ ->
             true
@@ -29,23 +36,22 @@ class MusicPlayer(private val context: Context) {
 
     }
     private val mediaPlayer: MediaPlayer?
-        get() = if (mIsInitialized) unsafeMediaPlayer else null
-
-    fun isInitialized(): Boolean = mIsInitialized
+        get() = if (isInitialized) unsafeMediaPlayer else null
 
     val isPlaying: Boolean
         get() = mediaPlayer?.isPlaying ?: false
 
     fun setDataSource(path: String): Boolean {
-        mIsInitialized = false
-        mIsInitialized = setDataSourceImpl(unsafeMediaPlayer, path)
-        return mIsInitialized
+        isInitialized = false
+        isInitialized = setDataSourceImpl(unsafeMediaPlayer, path)
+        return isInitialized
     }
 
     private fun setDataSourceImpl(player: MediaPlayer, path: String): Boolean {
         try {
             player.reset()
             player.setOnPreparedListener(null)
+            onUpdate.dispatch(MusicState.SongStaged)
             if (path.startsWith("content://")) {
                 player.setDataSource(context, Uri.parse(path))
             } else {
@@ -58,22 +64,14 @@ class MusicPlayer(private val context: Context) {
         return true
     }
 
-    fun startMusic(): Boolean {
-        return try {
-            mediaPlayer?.start()
-            true
-        } catch (e: java.lang.IllegalStateException) {
-            false
-        }
+    fun start() {
+        mediaPlayer?.start()
+        onUpdate.dispatch(MusicState.StartPlaying)
     }
 
-    fun pause(): Boolean {
-        return try {
-            mediaPlayer?.pause()
-            true
-        } catch (e: java.lang.IllegalStateException) {
-            false
-        }
+    fun pause() {
+        mediaPlayer?.pause()
+        onUpdate.dispatch(MusicState.StopPlaying)
     }
 }
 

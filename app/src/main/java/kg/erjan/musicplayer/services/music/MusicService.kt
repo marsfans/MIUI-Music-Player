@@ -5,31 +5,22 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import kg.erjan.domain.entities.tracks.Tracks
-import kg.erjan.musicplayer.utils.MusicObserver
 import kg.erjan.musicplayer.utils.MusicUtil
 import java.util.*
-
-enum class MusicState {
-    StartPlaying,
-    StopPlaying,
-    SongStaged
-}
 class MusicService : Service() {
 
-    private var playbackService: MusicPlayer = MusicPlayer(this)
+    private var player: MusicPlayer = MusicPlayer(this)
     private val musicBind: IBinder = MusicBinder(this)
     private var position = -1
     private var originalPlayerQueue = mutableListOf<Tracks>()
     private var playingQueue: ArrayList<Tracks> = ArrayList<Tracks>()
 
-    val isPlaying: Boolean get() = playbackService.isPlaying
-
-    val onUpdate = MusicObserver<MusicState>()
-
+    val isPlaying: Boolean get() = player.isPlaying
     val currentSong: Tracks get() = getSongAt(position)
+    val onUpdate = player.onUpdate
 
     val currentPlaybackState: PlaybackState?
-        get() = playbackService.currentPlaybackState
+        get() = player.currentPlaybackState
 
     private fun getSongAt(position: Int): Tracks {
         return playingQueue[position]
@@ -51,11 +42,11 @@ class MusicService : Service() {
     }
 
     fun play() {
-        if (!playbackService.isPlaying) {
-            if (!playbackService.isInitialized()) {
+        if (!player.isPlaying) {
+            if (!player.isInitialized) {
                 playSongAt(position)
             } else {
-                playbackService.startMusic()
+                player.start()
             }
         }
     }
@@ -68,15 +59,15 @@ class MusicService : Service() {
         playSongAt(position - 1)
     }
 
-    fun playSongAt(position: Int) {
+    private fun playSongAt(position: Int) {
         if (openTrackAndPrepareNextAt(position)) {
             play()
         }
     }
 
     fun pause() {
-        if (playbackService.isPlaying) {
-            playbackService.pause()
+        if (player.isPlaying) {
+            player.pause()
         }
     }
 
@@ -94,7 +85,7 @@ class MusicService : Service() {
     }
 
     private fun openCurrent(): Boolean = synchronized(this) {
-        return playbackService.setDataSource(
+        return player.setDataSource(
             getTrackUri(
                 Objects.requireNonNull(
                     currentSong

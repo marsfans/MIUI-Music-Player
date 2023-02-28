@@ -11,31 +11,38 @@ import java.util.*
 class MusicPlayerRemote {
 
     private val connectionMap = WeakHashMap<Context, ServiceBinder>()
-    var musicService = MusicService()
-    val currentSong: Tracks = musicService.currentSong
-    val onUpdate: MusicObserver<MusicState> = musicService.onUpdate
-    val isPlaying: Boolean = musicService.isPlaying
+    var musicService: MusicService? = null
 
-    val currentPlaybackState: PlaybackState? = musicService.currentPlaybackState
+    val currentSong: Tracks
+        get() = if (musicService != null) musicService!!.currentSong else Tracks.emptySong
+
+    val onUpdate: MusicObserver<MusicState>
+        get() = if (musicService != null) musicService!!.onUpdate else MusicObserver()
+
+    val isPlaying: Boolean
+        get() = musicService != null && musicService!!.isPlaying
+
+    val currentPlaybackState: PlaybackState?
+        get() = if (musicService != null) musicService!!.currentPlaybackState else PlaybackState.zero
 
     fun playNextSong() {
-        musicService.playNextSong()
+        musicService?.playNextSong()
     }
 
     fun playPreviousSong() {
-        musicService.playPreviousSong()
+        musicService?.playPreviousSong()
     }
 
     fun pauseSong() {
-        musicService.pause()
+        musicService?.pause()
     }
 
     fun resumePlaying() {
-        musicService.play()
+        musicService?.play()
     }
 
     fun openQueue(queue: List<Tracks>, startPosition: Int, startPlaying: Boolean) {
-        musicService.openQueue(queue, startPosition, startPlaying)
+        musicService?.openQueue(queue, startPosition, startPlaying)
     }
 
     fun bindService(context: Context, callback: ServiceConnection): ServiceToken? {
@@ -72,6 +79,9 @@ class MusicPlayerRemote {
         val mContextWrapper = token.mWrappedContext
         val mBinder = connectionMap.remove(mContextWrapper) ?: return
         mContextWrapper.unbindService(mBinder)
+        if (connectionMap.isEmpty()) {
+            musicService = null
+        }
     }
 
     inner class ServiceBinder internal constructor(private val mCallback: ServiceConnection?) :
@@ -85,6 +95,7 @@ class MusicPlayerRemote {
 
         override fun onServiceDisconnected(className: ComponentName) {
             mCallback?.onServiceDisconnected(className)
+            musicService = null
         }
     }
 

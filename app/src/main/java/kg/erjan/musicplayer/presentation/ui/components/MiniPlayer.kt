@@ -39,7 +39,7 @@ fun MiniPlayer(
         mutableStateOf(auxiliary.musicPlayerRemote.isPlaying)
     }
 
-    EventerEffect(musicObserver = auxiliary.musicPlayerRemote.onUpdate){
+    ObserverState(musicObserver = auxiliary.musicPlayerRemote.onUpdate){
         currentSong = auxiliary.musicPlayerRemote.currentSong
         isPlaying = auxiliary.musicPlayerRemote.isPlaying
     }
