@@ -5,13 +5,12 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import kg.erjan.domain.entities.tracks.Tracks
-import kg.erjan.musicplayer.services.music.playback.PlaybackService
 import kg.erjan.musicplayer.utils.MusicUtil
 import java.util.*
 
 class MusicService : Service() {
 
-    private var playbackService: PlaybackService = MusicPlayer(this)
+    private var playbackService: MusicPlayer = MusicPlayer(this)
     private val musicBind: IBinder = MusicBinder(this)
     private var position = -1
     private var originalPlayerQueue = mutableListOf<Tracks>()
@@ -57,7 +56,7 @@ class MusicService : Service() {
         playSongAt(position + 1)
     }
 
-    fun playPreviousSong(){
+    fun playPreviousSong() {
         playSongAt(position - 1)
     }
 

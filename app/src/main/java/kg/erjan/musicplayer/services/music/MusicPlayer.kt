@@ -3,15 +3,12 @@ package kg.erjan.musicplayer.services.music
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import kg.erjan.musicplayer.services.music.playback.PlaybackService
 
-class MusicPlayer(
-    val context: Context
-) : PlaybackService {
+class MusicPlayer(private val context: Context) {
 
     private var mIsInitialized = false
 
-    override val currentPlaybackState: PlaybackState?
+    val currentPlaybackState: PlaybackState?
         get() = mediaPlayer?.let {
             PlaybackState(
                 played = it.currentPosition,
@@ -34,17 +31,14 @@ class MusicPlayer(
     private val mediaPlayer: MediaPlayer?
         get() = if (mIsInitialized) unsafeMediaPlayer else null
 
-    override fun isInitialized(): Boolean = mIsInitialized
+    fun isInitialized(): Boolean = mIsInitialized
 
-    override val isPlaying: Boolean
+    val isPlaying: Boolean
         get() = mediaPlayer?.isPlaying ?: false
 
-    override fun setDataSource(path: String): Boolean {
+    fun setDataSource(path: String): Boolean {
         mIsInitialized = false
         mIsInitialized = setDataSourceImpl(unsafeMediaPlayer, path)
-        if (mIsInitialized) {
-            setNextDataSource(null)
-        }
         return mIsInitialized
     }
 
@@ -64,7 +58,7 @@ class MusicPlayer(
         return true
     }
 
-    override fun startMusic(): Boolean {
+    fun startMusic(): Boolean {
         return try {
             mediaPlayer?.start()
             true
@@ -73,11 +67,7 @@ class MusicPlayer(
         }
     }
 
-    override fun stop() {
-        mediaPlayer?.reset()
-    }
-
-    override fun pause(): Boolean {
+    fun pause(): Boolean {
         return try {
             mediaPlayer?.pause()
             true
@@ -85,17 +75,12 @@ class MusicPlayer(
             false
         }
     }
-
-    override fun setNextDataSource(path: String?) {
-    }
 }
 
 data class PlaybackState(
     val played: Int,
     val total: Int,
 ) {
-    val ratio: Float
-        get() = (played.toFloat() / total).takeIf { it.isFinite() } ?: 0f
 
     companion object {
         val zero = PlaybackState(0, 0)
