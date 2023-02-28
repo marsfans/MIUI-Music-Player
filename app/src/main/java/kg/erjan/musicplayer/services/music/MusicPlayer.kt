@@ -3,17 +3,10 @@ package kg.erjan.musicplayer.services.music
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import kg.erjan.musicplayer.utils.MusicObserver
 
-enum class MusicState {
-    StartPlaying,
-    StopPlaying,
-    SongStaged
-}
 class MusicPlayer(private val context: Context) {
 
     var isInitialized = false
-    val onUpdate = MusicObserver<MusicState>()
 
     val currentPlaybackState: PlaybackState?
         get() = mediaPlayer?.let {
@@ -51,7 +44,6 @@ class MusicPlayer(private val context: Context) {
         try {
             player.reset()
             player.setOnPreparedListener(null)
-            onUpdate.dispatch(MusicState.SongStaged)
             if (path.startsWith("content://")) {
                 player.setDataSource(context, Uri.parse(path))
             } else {
@@ -64,15 +56,10 @@ class MusicPlayer(private val context: Context) {
         return true
     }
 
-    fun start() {
-        mediaPlayer?.start()
-        onUpdate.dispatch(MusicState.StartPlaying)
-    }
+    fun start() = mediaPlayer?.start()
 
-    fun pause() {
-        mediaPlayer?.pause()
-        onUpdate.dispatch(MusicState.StopPlaying)
-    }
+    fun pause() = mediaPlayer?.pause()
+
 }
 
 data class PlaybackState(

@@ -5,8 +5,15 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import kg.erjan.domain.entities.tracks.Tracks
+import kg.erjan.musicplayer.utils.MusicObserver
 import kg.erjan.musicplayer.utils.MusicUtil
 import java.util.*
+
+enum class MusicState {
+    StartPlaying,
+    StopPlaying,
+    SongStaged
+}
 class MusicService : Service() {
 
     private var player: MusicPlayer = MusicPlayer(this)
@@ -16,8 +23,10 @@ class MusicService : Service() {
     private var playingQueue: ArrayList<Tracks> = ArrayList<Tracks>()
 
     val isPlaying: Boolean get() = player.isPlaying
+
+    val onUpdate = MusicObserver<MusicState>()
+
     val currentSong: Tracks get() = getSongAt(position)
-    val onUpdate = player.onUpdate
 
     val currentPlaybackState: PlaybackState?
         get() = player.currentPlaybackState
@@ -45,8 +54,10 @@ class MusicService : Service() {
         if (!player.isPlaying) {
             if (!player.isInitialized) {
                 playSongAt(position)
+                onUpdate.dispatch(MusicState.SongStaged)
             } else {
                 player.start()
+                onUpdate.dispatch(MusicState.StartPlaying)
             }
         }
     }
@@ -68,6 +79,7 @@ class MusicService : Service() {
     fun pause() {
         if (player.isPlaying) {
             player.pause()
+            onUpdate.dispatch(MusicState.StopPlaying)
         }
     }
 
