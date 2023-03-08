@@ -55,6 +55,9 @@ class MusicService : Service() {
         if (!player.isPlaying) {
             if (!player.isInitialized) {
                 playSongAt(position)
+                player.onPlaybackPositionUpdate = {
+                    onPlaybackPositionUpdate.dispatch(it)
+                }
                 onUpdate.dispatch(MusicState.SongStaged)
             } else {
                 player.start()

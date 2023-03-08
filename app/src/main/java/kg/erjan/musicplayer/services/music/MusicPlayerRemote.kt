@@ -25,6 +25,9 @@ class MusicPlayerRemote {
     val currentPlaybackPosition: PlaybackPosition?
         get() = if (musicService != null) musicService!!.currentPlaybackPosition else PlaybackPosition.zero
 
+    val playbackPositionUpdater: MusicObserver<PlaybackPosition>
+        get() = if (musicService != null) musicService!!.onPlaybackPositionUpdate else MusicObserver()
+
     fun playNextSong() {
         musicService?.playNextSong()
     }

@@ -11,6 +11,10 @@ class MusicPlayer(private val context: Context) {
     var onPlaybackPositionUpdate: ((PlaybackPosition) -> Unit)? = null
     private var playbackPositionUpdate: Timer? = null
 
+    private val unsafeMediaPlayer: MediaPlayer
+    private val mediaPlayer: MediaPlayer?
+        get() = if (isInitialized) unsafeMediaPlayer else null
+
     val currentPlaybackPosition: PlaybackPosition?
         get() = mediaPlayer?.let {
             PlaybackPosition(
@@ -19,21 +23,20 @@ class MusicPlayer(private val context: Context) {
             )
         }
 
-    private val unsafeMediaPlayer: MediaPlayer = MediaPlayer().apply {
-        setOnPreparedListener {
-            setDurationToPlaybackPosition()
-            isInitialized = true
+    init {
+        unsafeMediaPlayer = MediaPlayer().apply {
+            setOnPreparedListener {
+                isInitialized = true
+                setDurationToPlaybackPosition()
+            }
+            setOnCompletionListener {
+                isInitialized = false
+            }
+            setOnErrorListener { _, _, _ ->
+                true
+            }
         }
-        setOnCompletionListener {
-            isInitialized = false
-        }
-        setOnErrorListener { _, _, _ ->
-            true
-        }
-
     }
-    private val mediaPlayer: MediaPlayer?
-        get() = if (isInitialized) unsafeMediaPlayer else null
 
     val isPlaying: Boolean
         get() = mediaPlayer?.isPlaying ?: false

@@ -21,6 +21,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import kg.erjan.musicplayer.R
+import kg.erjan.musicplayer.presentation.ui.components.ObserverState
 import kg.erjan.musicplayer.presentation.ui.helpers.Auxiliary
 import kg.erjan.musicplayer.presentation.ui.helpers.DurationConvertor
 import kg.erjan.musicplayer.presentation.ui.theme.*
@@ -57,8 +58,12 @@ fun PlayerScreen(auxiliary: Auxiliary) {
 @Composable
 private fun PlaybackMusic(auxiliary: Auxiliary) {
 
-    val isPlaying by remember {
+    var isPlaying by remember {
         mutableStateOf(auxiliary.musicPlayerRemote.isPlaying)
+    }
+
+    ObserverState(musicObserver = auxiliary.musicPlayerRemote.onUpdate) {
+        isPlaying = auxiliary.musicPlayerRemote.isPlaying
     }
     Row(
         modifier = Modifier
@@ -197,11 +202,16 @@ private fun ImageMusic() {
 @Composable
 private fun MusicSlider(auxiliary: Auxiliary) {
     var sliderPosition by remember { mutableStateOf<Int?>(null) }
-    val duration by remember {
+    var duration by remember {
         mutableStateOf(
             auxiliary.musicPlayerRemote.currentPlaybackPosition ?: PlaybackPosition.zero
         )
     }
+
+    ObserverState(musicObserver = auxiliary.musicPlayerRemote.playbackPositionUpdater) {
+        duration = it
+    }
+
     Column(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
@@ -237,9 +247,14 @@ private fun MusicSlider(auxiliary: Auxiliary) {
 @Composable
 private fun MusicInfo(auxiliary: Auxiliary) {
     val isFavorite = remember { mutableStateOf(false) }
-    val currentSong by remember {
+    var currentSong by remember {
         mutableStateOf(auxiliary.musicPlayerRemote.currentSong)
     }
+
+    ObserverState(musicObserver = auxiliary.musicPlayerRemote.onUpdate) {
+        currentSong = auxiliary.musicPlayerRemote.currentSong
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
