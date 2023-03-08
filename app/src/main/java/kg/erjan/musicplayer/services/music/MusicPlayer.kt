@@ -3,14 +3,17 @@ package kg.erjan.musicplayer.services.music
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
+import java.util.*
 
 class MusicPlayer(private val context: Context) {
 
     var isInitialized = false
+    var onPlaybackPositionUpdate: ((PlaybackPosition) -> Unit)? = null
+    private var playbackPositionUpdate: Timer? = null
 
-    val currentPlaybackState: PlaybackState?
+    val currentPlaybackPosition: PlaybackPosition?
         get() = mediaPlayer?.let {
-            PlaybackState(
+            PlaybackPosition(
                 played = it.currentPosition,
                 total = it.duration
             )
@@ -18,6 +21,7 @@ class MusicPlayer(private val context: Context) {
 
     private val unsafeMediaPlayer: MediaPlayer = MediaPlayer().apply {
         setOnPreparedListener {
+            setDurationToPlaybackPosition()
             isInitialized = true
         }
         setOnCompletionListener {
@@ -60,14 +64,22 @@ class MusicPlayer(private val context: Context) {
 
     fun pause() = mediaPlayer?.pause()
 
+    private fun setDurationToPlaybackPosition() {
+        playbackPositionUpdate = kotlin.concurrent.timer(period = 100L) {
+            currentPlaybackPosition?.let {
+                onPlaybackPositionUpdate?.invoke(it)
+            }
+        }
+    }
+
 }
 
-data class PlaybackState(
+data class PlaybackPosition(
     val played: Int,
     val total: Int,
 ) {
 
     companion object {
-        val zero = PlaybackState(0, 0)
+        val zero = PlaybackPosition(0, 0)
     }
 }

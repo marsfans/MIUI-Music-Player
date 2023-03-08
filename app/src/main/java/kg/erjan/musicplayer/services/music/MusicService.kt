@@ -21,6 +21,7 @@ class MusicService : Service() {
     private var position = -1
     private var originalPlayerQueue = mutableListOf<Tracks>()
     private var playingQueue: ArrayList<Tracks> = ArrayList<Tracks>()
+    val onPlaybackPositionUpdate = MusicObserver<PlaybackPosition>()
 
     val isPlaying: Boolean get() = player.isPlaying
 
@@ -28,8 +29,8 @@ class MusicService : Service() {
 
     val currentSong: Tracks get() = getSongAt(position)
 
-    val currentPlaybackState: PlaybackState?
-        get() = player.currentPlaybackState
+    val currentPlaybackPosition: PlaybackPosition?
+        get() = player.currentPlaybackPosition
 
     private fun getSongAt(position: Int): Tracks {
         return playingQueue[position]

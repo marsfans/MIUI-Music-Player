@@ -24,7 +24,7 @@ import kg.erjan.musicplayer.R
 import kg.erjan.musicplayer.presentation.ui.helpers.Auxiliary
 import kg.erjan.musicplayer.presentation.ui.helpers.DurationConvertor
 import kg.erjan.musicplayer.presentation.ui.theme.*
-import kg.erjan.musicplayer.services.music.PlaybackState
+import kg.erjan.musicplayer.services.music.PlaybackPosition
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
@@ -199,7 +199,7 @@ private fun MusicSlider(auxiliary: Auxiliary) {
     var sliderPosition by remember { mutableStateOf<Int?>(null) }
     val duration by remember {
         mutableStateOf(
-            auxiliary.musicPlayerRemote.currentPlaybackState ?: PlaybackState.zero
+            auxiliary.musicPlayerRemote.currentPlaybackPosition ?: PlaybackPosition.zero
         )
     }
     Column(
