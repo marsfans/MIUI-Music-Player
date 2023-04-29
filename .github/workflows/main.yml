@@ -34,4 +34,6 @@ jobs:
           java-version: 18
           cache: gradle
       - name: Assemble release
-        run: ./gradlew :app:assembleRelease
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:assembleRelease
