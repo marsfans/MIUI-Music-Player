@@ -1,0 +1,37 @@
+name: MIUI music CI
+
+on:
+
+  push:
+
+    branches: [ main ]
+
+  pull_request:
+
+    branches: [ main ]
+
+jobs:
+
+  validation:
+
+    name: ubuntu
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+
+        uses: actions/checkout@v3
+
+      - name: Validate Gradle Wrapper
+
+        uses: gradle/wrapper-validation-action@v1
+      - name: Set up JDK 18
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 18
+          cache: gradle
+      - name: Assemble release
+        run: ./gradlew :app:assembleRelease
