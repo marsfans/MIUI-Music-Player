@@ -36,4 +36,14 @@ jobs:
       - name: Assemble release
         run: |
           chmod +x ./gradlew
-          ./gradlew :app:assembleRelease
+          ./gradlew :app:assembleRelease 
+          tree ./app/build/outputs/apk/
+
+      - uses: actions/upload-artifact@v2
+
+        with:
+
+          name: miui music
+
+          path: ./app/build/outputs/apk/release/
+
